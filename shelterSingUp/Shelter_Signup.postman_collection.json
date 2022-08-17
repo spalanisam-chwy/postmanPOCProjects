@@ -1,0 +1,1663 @@
+{
+	"info": {
+		"_postman_id": "50d31573-76c9-45c0-845a-a730a1a60847",
+		"name": "Shelter_Signup",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17989700"
+	},
+	"item": [
+		{
+			"name": "signup & approve org",
+			"item": []
+		},
+		{
+			"name": "Delete & Live",
+			"item": [
+				{
+					"name": "DeleteOrg",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "apiKey",
+								"value": "e41ab20e-4f11-4665-a26c-40f36dd36e60",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{shelter-api}}/g/api/deleteOrganization/{{kyriosOrgId}}",
+							"host": [
+								"{{shelter-api}}"
+							],
+							"path": [
+								"g",
+								"api",
+								"deleteOrganization",
+								"{{kyriosOrgId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update OrgToLive",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "apiKey",
+								"value": "e41ab20e-4f11-4665-a26c-40f36dd36e60",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{shelter-api}}/g/api/organization/update/{{kyriosOrgId}}",
+							"host": [
+								"{{shelter-api}}"
+							],
+							"path": [
+								"g",
+								"api",
+								"organization",
+								"update",
+								"{{kyriosOrgId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Create new user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// const jar = pm.cookies.jar();",
+							"// jar.clear(pm.request.url, function (error) {",
+							"//   // error - <Error>",
+							"// });",
+							"var val = Math.floor(100000 + Math.random() * 900000);",
+							"pm.environment.set('email','sathish'+val+'@chewy.com');",
+							"pm.environment.set('Name','chewyOrg'+val);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 201', () => {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"pm.test('validate userid', () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.userId).to.be.greaterThan(0);",
+							"    pm.environment.set('user_id', responseJson.userId);",
+							"    console.log(pm.environment.get('user_id'));",
+							"});",
+							"pm.test(\"Response time is less than 5000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(5000);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"fullName\": \"Sathish Palanisamy\",\n    \"password\": \"password\",\n    \"loginId\": {{email}},\n    \"email\": {{email}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/user/",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"user",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login - User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('validate userid', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.userId).to.eql(pm.environment.get('user_id'));",
+							"    console.log(pm.environment.get('user_id'));",
+							"});",
+							"pm.test('Ensure business page url is empty for the user', () => {",
+							"    pm.expect(responseJson.businessPageUrl).to.eq(\"\");",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"loginId\": {{email}},\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/login",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateOrg",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var phNumber = Math.floor(Math.random() * 9000000000) + 1000000000;",
+							"var phoneNum = pm.variables.replaceIn(\"{{$randomPhoneNumber}}\");",
+							"pm.environment.set('phoneNum', phoneNum);",
+							"pm.environment.set('phNumber', phNumber);",
+							"pm.environment.set('displayEmail', String(pm.environment.get('email'))) ;",
+							"var ein = Math.floor(Math.random() * 90 + 10).toString()+'-'+Math.floor(1000000 + Math.random() * 9000000);",
+							"pm.environment.set('ein', ein);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.be.eq(0);",
+							"    pm.environment.set('kyriosOrgId', responseJson.response.kyriosOrgId);",
+							"    console.log(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 700ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(700);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"TEMP_ORG_CREATED\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"displayEmail\": \"{{email}}\",\n    \"name\": \"{{Name}}\",\n    \"website\": \"www.google.com\",\n    \"displayPhoneNumber\": \"{{phNumber}}\",\n    \"keepContactPrivate\": \"0\",\n    \"roleId\": 13,\n    \"service\": \"shelter\",\n    \"serviceComment\": \"\",\n    \"email\": \"{{email}}\",\n    \"signUpStatus\": \"TEMP_ORG_CREATED\",\n    \"einNum\": \"{{ein}}\",\n    \"sourceType\": \"SIGNUP_TEMPORARY\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/createOrganization",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"createOrganization"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Address Validator",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var street = pm.variables.replaceIn(\"{{$randomStreetName}}\");",
+							"pm.environment.set('streetAddr', street);",
+							"var city = pm.variables.replaceIn(\"{{$randomCity}}\");",
+							"pm.environment.set('City', city);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('verify no error in response', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"streets\": [\n        \"{{streetAddr}}\"\n    ],\n    \"city\": \"Redmond\",\n    \"stateOrProvince\": \"WA\",\n    \"postalCode\": \"98052\",\n    \"country\": \"US\",\n    \"addressType\": \"BUSINESS\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/address/validator",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"address",
+						"validator"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateOrg-TempOrg",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.be.eq(0);",
+							"});",
+							"pm.test(\"Response time is less than 700ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(700);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"TEMP_ORG_CREATED\");",
+							"    pm.expect(responseJson.response.sourceType).to.eq(\"SIGNUP_TEMPORARY\");",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"displayAddress1\": \"17325 NE 85th PL\",\n    \"displayAddress2\": \"R236\",\n    \"displayCity\": \"Redmond\",\n    \"displayState\": \"WA\",\n    \"displayZipcode\": \"98052\",\n    \"keepLocationPrivate\": \"0\",\n    \"shippingAddressSameAsListingAddress\": true,\n    \"sourceType\": \"SIGNUP_TEMPORARY\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/createOrganization",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"createOrganization"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateOrg-ListingAddrCreated",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.be.greaterThan(0);",
+							"    pm.environment.set('kyriosOrgId', responseJson.response.kyriosOrgId);",
+							"    console.log(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1500);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"TEMP_ORG_CREATED\");",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"PENDING\");",
+							"    pm.expect(responseJson.response.requestType).to.eq(\"businessApproval\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"displayEmail\": \"{{email}}\",\n    \"name\": \"{{Name}}\",\n    \"website\": \"www.google.com\",\n    \"displayPhoneNumber\": \"{{phNumber}}\",\n    \"keepContactPrivate\": \"0\",\n    \"roleId\": 13,\n    \"service\": \"shelter\",\n    \"serviceComment\": \"testing\",\n    \"email\": \"{{email}}\",\n    \"einNum\": \"{{ein}}\",\n    \"displayAddress1\": \"17325 NE 85th PL\",\n    \"displayAddress2\": \"R236\",\n    \"displayCity\": \"Redmond\",\n    \"displayState\": \"WA\",\n    \"displayZipcode\": \"98052\",\n    \"keepLocationPrivate\": \"0\",\n    \"shippingAddressSameAsListingAddress\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/createOrganization",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"createOrganization"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateBizPage",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 700ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(700);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"SHIPPING_ADDRESS_CREATED\");",
+							"    pm.expect(responseJson.response.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"PENDING\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"shippingAddressSameAsListingAddress\": true,\n    \"streetAddress1\": \"17325 NE 85th PL\",\n    \"streetAddress2\": \"\",\n    \"city\": \"Redmond\",\n    \"state\": \"WA\",\n    \"postalCode\": \"98052\",\n    \"phoneNumber\": \"{{phNumber}}\",\n    \"signUpStatus\": \"SHIPPING_ADDRESS_CREATED\",\n    \"kyriosOrgId\": {{kyriosOrgId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/updateBusinessPage/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"updateBusinessPage",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetQkWidget",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response time is less than 1500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1500);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"OK\");",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{shelter-api}}/g/api/donation/getQuickWidget?pageType=SIGNUP",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"donation",
+						"getQuickWidget"
+					],
+					"query": [
+						{
+							"key": "pageType",
+							"value": "SIGNUP"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getList",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response time is less than 1500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1500);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"OK\");",
+							"});",
+							"",
+							"pm.test('Validate response properties', () => {",
+							"    responseJson = pm.response.json();",
+							"    console.log(responseJson.response.lists[0].orgId);",
+							"    pm.expect(responseJson.response.lists[0].orgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"    pm.expect(responseJson.response.lists[0].userId).to.eq(pm.environment.get('user_id'));",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{shelter-api}}/g/api/wishlist/getList?id={{kyriosOrgId}}&type=DONATION_ORG_WISHLIST",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"wishlist",
+						"getList"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "{{kyriosOrgId}}"
+						},
+						{
+							"key": "type",
+							"value": "DONATION_ORG_WISHLIST"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateBizPage-wishListAdded",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"ITEMS_ADDED_TO_WISHLIST\");",
+							"    pm.expect(responseJson.response.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"PENDING\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"displayEmail\": \"{{email}}\",\n    \"name\": \"{{Name}}\",\n    \"website\": \"www.google.com\",\n    \"displayPhoneNumber\": \"{{phNumber}}\",\n    \"keepContactPrivate\": \"0\",\n    \"roleId\": 13,\n    \"service\": \"shelter\",\n    \"serviceComment\": \"\",\n    \"email\": \"{{email}}\",\n    \"signUpStatus\": \"ITEMS_ADDED_TO_WISHLIST\",\n    \"kyriosOrgId\": {{kyriosOrgId}},\n    \"einNum\": \"{{ein}}\",\n    \"sourceType\": \"SIGNUP_TEMPORARY\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/updateBusinessPage/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"updateBusinessPage",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateBizPage-donationEmailAdded",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"DONATION_THANK_YOU_EMAIL_CREATED\");",
+							"    pm.expect(responseJson.response.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"PENDING\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"isThankYouEmailEnabled\": true,\n    \"thankYouEmailBody\": \"All of us at testing org thank you for your donation! Your generous gift and support helps us care for our pets until they find forever homes.\",\n    \"signUpStatus\": \"DONATION_THANK_YOU_EMAIL_CREATED\",\n    \"kyriosOrgId\": {{kyriosOrgId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/updateBusinessPage/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"updateBusinessPage",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateBizPage-orgDetailsAdded",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"ORG_DETAILS_ADDED\");",
+							"    pm.expect(responseJson.response.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"PENDING\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"overview\": \"Our organization is committed to keeping pets safe, happy and healthy while they wait to be placed in a forever home.\",\n    \"signUpStatus\": \"ORG_DETAILS_ADDED\",\n    \"kyriosOrgId\": {{kyriosOrgId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/updateBusinessPage/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"updateBusinessPage",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LogoUpload",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    // pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    // pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    // pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.signUpStatus).to.eq(\"ORG_DETAILS_ADDED\");",
+							"    pm.expect(responseJson.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.businessPageStatus).to.eq(\"PENDING\");",
+							"    pm.expect(responseJson.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "file",
+					"file": {
+						"src": "/Users/spalanisam/Desktop/Cat_Happy.jpeg"
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/logoUpload/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"logoUpload",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateBizPage-orgLogoUpdated",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"ORG_LOGO_UPLOADED\");",
+							"    pm.expect(responseJson.response.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"PENDING\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"signUpStatus\": \"ORG_LOGO_UPLOADED\",\n    \"kyriosOrgId\": {{kyriosOrgId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/updateBusinessPage/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"updateBusinessPage",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateBizPage-AddBizHours",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"ADDED_BUSINESS_HOURS\");",
+							"    pm.expect(responseJson.response.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"PENDING\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"businessHours\": {\n        \"Sunday\": {\n            \"open\": \"6:30\",\n            \"openPeriod\": \"AM\",\n            \"close\": \"4:30\",\n            \"closePeriod\": \"PM\"\n        },\n        \"Monday\": null,\n        \"Tuesday\": null,\n        \"Wednesday\": null,\n        \"Thursday\": null,\n        \"Friday\": null,\n        \"Saturday\": null\n    },\n    \"signUpStatus\": \"ADDED_BUSINESS_HOURS\",\n    \"kyriosOrgId\": {{kyriosOrgId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/updateBusinessPage/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"updateBusinessPage",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateBizPage-partnerizeSignup",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"PARTNERIZE_EMAIL_SIGNED_UP\");",
+							"    pm.expect(responseJson.response.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"PENDING\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"signUpStatus\": \"PARTNERIZE_EMAIL_SIGNED_UP\",\n    \"signUpForPartnerize\": true,\n    \"kyriosOrgId\": {{kyriosOrgId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/updateBusinessPage/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"updateBusinessPage",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getExternalProviderName",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response time is less than 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"OK\");",
+							"});",
+							"",
+							"pm.test('Validate response properties', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.length).to.eq(0);",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{shelter-api}}/g/api/external/provider/search/kyriosOrgId/{{kyriosOrgId}}?externalProviderName=RESCUE_GROUP",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"external",
+						"provider",
+						"search",
+						"kyriosOrgId",
+						"{{kyriosOrgId}}"
+					],
+					"query": [
+						{
+							"key": "externalProviderName",
+							"value": "RESCUE_GROUP"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "postExternalProvider",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response time is less than 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"OK\");",
+							"});",
+							"",
+							"pm.test('Validate response properties', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.length).to.eq(1);",
+							"    pm.expect(responseJson.response[0].externalProviderName).to.eq(\"RESCUE_GROUP\");",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"partnerId\": \"2020\",\n    \"externalProviderName\": \"RESCUE_GROUP\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/external/provider",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"external",
+						"provider"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateBizPage-externalProviderLinked",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"ADOPT_A_PET_URL_ADDED\");",
+							"    pm.expect(responseJson.response.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"PENDING\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"adoptionPartners\": [\n        {\n            \"adoptionPartnerId\": \"2020\",\n            \"adoptionPartnerName\": \"RESCUE_GROUP\"\n        }\n    ],\n    \"adoptionDetails\": {\n        \"acceptedTermsForAdoptions\": true\n    },\n    \"signUpStatus\": \"ADOPT_A_PET_URL_ADDED\",\n    \"kyriosOrgId\": {{kyriosOrgId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/updateBusinessPage/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"updateBusinessPage",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateBizPage-adoptionInsAdded",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"ADOPTION_INSTRUCTIONS_REVISED\");",
+							"    pm.expect(responseJson.response.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"PENDING\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"adoptionDetails\": {\n        \"adoptionInstructions\": \"$100 per cat\\r\\n1.  Find Your Match â\\r\\nWe are a foster-home based rescue group and do not have a facility that houses adoptable cats. All of our cats and kittens can be seen on our website with their photos and descriptions posted.\\r\\n2.  Apply â\\r\\nSubmit an adoption application when the cat you are interested in adopting is posted as available. Please review the adoption contract (link below), as this will be required for you to sign if approved to adopt.\\r\\n3.  Review â\\r\\nWe will review your application upon receipt. If we have any questions or concerns, we will contact you for clarity.\\r\\nAdopt â\\r\\nOnce your application has been approved and you have been matched with a kitty, we will contact you with adoption day details. As a Petco Partner, we strive to finalize all of our adoptions in a Petco store.\"\n    },\n    \"signUpStatus\": \"ADOPTION_INSTRUCTIONS_REVISED\",\n    \"kyriosOrgId\": {{kyriosOrgId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/updateBusinessPage/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"updateBusinessPage",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateBizPage-adoptionDetailsAdded",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"ADDITIONAL_ADOPTION_DETAILS_ADDED\");",
+							"    pm.expect(responseJson.response.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"PENDING\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"adoptionDetails\": {\n        \"contactPreferenceComment\": \"\",\n        \"contactPreferences\": [\n            \"CALL\"\n        ],\n        \"standardResponseTime\": \"ONE_TO_THREE_DAYS\",\n        \"adoptionFee\": {\n            \"min\": \"100.00\"\n        }\n    },\n    \"signUpStatus\": \"ADDITIONAL_ADOPTION_DETAILS_ADDED\",\n    \"kyriosOrgId\": {{kyriosOrgId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/updateBusinessPage/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"updateBusinessPage",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateBizPage-signUpCompleted",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1500);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.name).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.email).to.eq(pm.environment.get('email'));",
+							"    pm.expect(responseJson.response.einNum).to.eq(pm.environment.get('ein'));",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.signUpStatus).to.eq(\"SIGN_UP_COMPLETED\");",
+							"    pm.expect(responseJson.response.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"PENDING_APPROVAL\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							"pm.test('verify no error in response', () => {",
+							"    pm.expect(responseJson.error).to.be.null;",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"signUpStatus\": \"SIGN_UP_COMPLETED\",\n    \"kyriosOrgId\": {{kyriosOrgId}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-api}}/g/api/updateBusinessPage/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-api}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"updateBusinessPage",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getOrgByKyriosId",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('save the response', () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.id).to.be.greaterThan(0);",
+							"    pm.environment.set('orgId',responseJson.response.id);",
+							"    pm.environment.set('getOrgResponse',JSON.stringify(responseJson.response));",
+							"    console.log(pm.environment.get('getOrgResponse'));",
+							"});",
+							"pm.test(\"Response time is less than 500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"pm.test(\"Status code name has string\", function () {",
+							"    pm.response.to.have.status(\"OK\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "apiKey",
+						"value": "qYp5330z",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{shelter-c}}/api/v1/organization/kyriosOrgId/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-c}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"organization",
+						"kyriosOrgId",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PutOrgById",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var jsonBody = JSON.parse(pm.environment.get('getOrgResponse'));",
+							"jsonBody.businessPageStatus = \"LIVE\";",
+							"console.log(jsonBody);",
+							"pm.environment.set('getOrgResponse', JSON.stringify(jsonBody));",
+							"//console.log(pm.environment.get('getOrgResponse'));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('get valid kyrios org id', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response.kyriosOrgId).to.eq(pm.environment.get('kyriosOrgId'));",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							"pm.test('Response body parameter validation', () => {",
+							"    pm.expect(responseJson.response.displayName).to.eq(pm.environment.get('Name'));",
+							"    pm.expect(responseJson.response.displayEmail).to.eq(pm.environment.get('email'));",
+							"    pm.expect(parseInt(responseJson.response.displayPhoneNumber)).to.eq(pm.environment.get('phNumber'));",
+							"    pm.expect(responseJson.response.userId).to.eq(pm.environment.get('user_id'));",
+							"    pm.expect(responseJson.response.businessPageStatus).to.eq(\"LIVE\");",
+							"    pm.expect(responseJson.response.businessPageURL).to.contain(pm.environment.get('Name').toLowerCase());",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "apiKey",
+						"value": "qYp5330z",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{{getOrgResponse}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-c}}/api/v1/organization/{{orgId}}",
+					"host": [
+						"{{shelter-c}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"organization",
+						"{{orgId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteOrgEditByKyrios",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "apiKey",
+						"value": "qYp5330z",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{shelter-c}}/api/v1/organizationedit/{{kyriosOrgId}}",
+					"host": [
+						"{{shelter-c}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"organizationedit",
+						"{{kyriosOrgId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "getOrgResponse",
+			"value": ""
+		},
+		{
+			"key": "orgId",
+			"value": ""
+		}
+	]
+}
