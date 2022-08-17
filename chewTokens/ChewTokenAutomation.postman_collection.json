@@ -1,0 +1,1108 @@
+{
+	"info": {
+		"_postman_id": "502ac770-9550-4919-90df-02c7330a951c",
+		"name": "ChewToken - Automation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create new user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var val = Math.floor(1000 + Math.random() * 9000);",
+							"pm.globals.set('email','wade'+val+'@chewy.com');",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 201', () => {",
+							"    pm.response.to.have.status(201);",
+							"})",
+							"pm.test('validate userid', () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.userId).to.be.greaterThan(0);",
+							"    pm.environment.set('user_id', responseJson.userId);",
+							"    console.log(pm.environment.get('user_id'));",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"fullName\": \"Wade Sorenson\",\n    \"password\": \"password\",\n    \"loginId\":{{email}},\n    \"email\": {{email}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/user/",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"user",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login - new user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"pm.test('validate userid', () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.userId).to.eql(pm.environment.get('user_id'));",
+							"    pm.environment.set('tokenValue', 0);",
+							"    console.log(pm.environment.get('user_id'));",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"loginId\": {{email}},\n    \"password\": \"password\"\n}"
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/login",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "validate Tokens for new user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"pm.test('validate null response', () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response).to.be.null;",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Activities for new user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"pm.test('validate null response', () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response).to.be.null;",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards/activities",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards",
+						"activities"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Redeem tokens - new user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 500', () => {",
+							"    pm.response.to.have.status(500);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate null response', () => {",
+							"    pm.expect(responseJson.response).to.be.null;",
+							"})",
+							"pm.test('validate the error message', () => {",
+							"    pm.expect(responseJson.error.message).to.include('Not enough tokens to complete action');",
+							"})",
+							"pm.test('validate response time', () => {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"redeemType\": \"DONATION_REDEEM\",\n\t\"targetId\": \"66217261\",\n    \"targetType\": \"ORG\", \n\t\"tokenValue\": \"100\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards/redeem",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards",
+						"redeem"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Create Account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate userID in the response', () => {",
+							"    pm.expect(responseJson.response.userId).to.eql(pm.environment.get('user_id'));",
+							"})",
+							"",
+							"pm.test('validate total token value in the response', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))+1000);",
+							"    pm.environment.set('tokenValue', responseJson.response.totalTokens);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rewardActionType\": \"CREATE_CHEWY_ACCOUNT\",\n    \"targetId\": \"148778291\",\n    \"targetType\": \"255110040\",\n    \"targetName\": \"\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Fav Shelter",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate userID in the response', () => {",
+							"    pm.expect(responseJson.response.userId).to.eql(pm.environment.get('user_id'));",
+							"})",
+							"",
+							"pm.test('validate total token value in the response', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))+50);",
+							"    pm.environment.set('tokenValue', responseJson.response.totalTokens);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rewardActionType\": \"FAVOURITE_SHELTER\",\n    \"targetId\": \"82456445\",\n    \"targetType\": \"ORG\",\n    \"targetName\": \"Chewy Paw Rescue\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Fav Pet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate userID in the response', () => {",
+							"    pm.expect(responseJson.response.userId).to.eql(pm.environment.get('user_id'));",
+							"})",
+							"",
+							"pm.test('validate total token value in the response', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))+25);",
+							"    pm.environment.set('tokenValue', responseJson.response.totalTokens);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rewardActionType\": \"FAVOURITE_PET\",\n    \"targetId\": \"125126\",\n    \"targetType\": \"PET\",\n    \"targetName\": \"Max\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Fav Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate userID in the response', () => {",
+							"    pm.expect(responseJson.response.userId).to.eql(pm.environment.get('user_id'));",
+							"})",
+							"",
+							"pm.test('validate total token value in the response', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))+25);",
+							"    pm.environment.set('tokenValue', responseJson.response.totalTokens);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"rewardActionType\": \"FAVOURITE_PRODUCT\",\n\t\"targetId\": \"123\",\n\t\"targetType\": \"PET\",\n\t\"targetName\": \"Rocky\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Review Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate userID in the response', () => {",
+							"    pm.expect(responseJson.response.userId).to.eql(pm.environment.get('user_id'));",
+							"})",
+							"",
+							"pm.test('validate total token value in the response', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))+30);",
+							"    pm.environment.set('tokenValue', responseJson.response.totalTokens);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rewardActionType\": \"REVIEW_PRODUCT\",\n     \"targetId\": \"64620\",\n    \"targetType\": \"PRODUCT\",\n    \"targetName\": \"Blue Buffalo Homestyle Recipe Senior Chicken Dinner with Garden Vegetables Canned Dog Food\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Create Pet Profile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate userID in the response', () => {",
+							"    pm.expect(responseJson.response.userId).to.eql(pm.environment.get('user_id'));",
+							"})",
+							"",
+							"pm.test('validate total token value in the response', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))+1000);",
+							"    pm.environment.set('tokenValue', responseJson.response.totalTokens);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rewardActionType\": \"CREATE_PET_PROFILE\",\n    \"targetId\": \"12345\",\n    \"targetType\": \"PET\",\n    \"targetName\": \"ROCKY\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Create Donation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate userID in the response', () => {",
+							"    pm.expect(responseJson.response.userId).to.eql(pm.environment.get('user_id'));",
+							"})",
+							"",
+							"pm.test('validate total token value in the response', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))+200);",
+							"    pm.environment.set('tokenValue', responseJson.response.totalTokens);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rewardActionType\": \"CREATE_DONATION\",\n    \"targetId\": \"82456445\",\n    \"targetType\": \"ORG\",\n    \"targetName\": \"Milford Rescue Home\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Create Personal Order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate userID in the response', () => {",
+							"    pm.expect(responseJson.response.userId).to.eql(pm.environment.get('user_id'));",
+							"})",
+							"",
+							"pm.test('validate total token value in the response', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))+200);",
+							"    pm.environment.set('tokenValue', responseJson.response.totalTokens);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rewardActionType\": \"CREATE_PERSONAL_ORDER\",\n    \"targetId\": \"148778291\",\n    \"targetType\": \"\",\n    \"targetName\": \"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Create AutoShip",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate userID in the response', () => {",
+							"    pm.expect(responseJson.response.userId).to.eql(pm.environment.get('user_id'));",
+							"})",
+							"",
+							"pm.test('validate total token value in the response', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))+500);",
+							"    pm.environment.set('tokenValue', responseJson.response.totalTokens);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rewardActionType\": \"CREATE_AUTOSHIP\",\n    \"targetId\": \"148778291\",\n    \"targetType\": \"\",\n    \"targetName\": \"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Connect With a Vet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate userID in the response', () => {",
+							"    pm.expect(responseJson.response.userId).to.eql(pm.environment.get('user_id'));",
+							"})",
+							"",
+							"pm.test('validate total token value in the response', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))+50);",
+							"    pm.environment.set('tokenValue', responseJson.response.totalTokens);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rewardActionType\": \"CONNECT_WITH_A_VET\",\n    \"targetId\": \"255109911\",\n    \"targetType\": \"USER\",\n    \"targetName\": \"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Adopt a Pet",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate userID in the response', () => {",
+							"    pm.expect(responseJson.response.userId).to.eql(pm.environment.get('user_id'));",
+							"})",
+							"",
+							"pm.test('validate total token value in the response', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))+200);",
+							"    pm.environment.set('tokenValue', responseJson.response.totalTokens);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rewardActionType\": \"ADOPT_A_PET\",\n    \"targetId\": \"125215\",\n    \"targetType\": \"Lucy\",\n    \"targetName\": \"\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Buy Pharmacy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate userID in the response', () => {",
+							"    pm.expect(responseJson.response.userId).to.eql(pm.environment.get('user_id'));",
+							"})",
+							"",
+							"pm.test('validate total token value in the response', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))+50);",
+							"    pm.environment.set('tokenValue', responseJson.response.totalTokens);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"rewardActionType\": \"BUY_PHARMACY\",\n    \"targetId\": \"64620161\",\n    \"targetType\": \"PRODUCT\",\n    \"targetName\": \"Enalapril Maleate Compounded Capsule for Dogs & Cats\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createRewards- Invalid Action",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 409', () => {",
+							"    pm.response.to.have.status(409);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate Error', () => {",
+							"    pm.expect(responseJson.error).to.eql(\"Conflict\");",
+							"    pm.expect(responseJson.message).to.include(\"Database error\");",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"rewardActionType\": \"testing\",\n\t\"targetId\": \"123\",\n\t\"targetType\": \"PET\",\n\t\"targetName\": \"Rocky\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Redeem tokens - Donation Order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate balance after redeem ', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))-1000);",
+							"    pm.environment.set('tokenValue', parseInt(responseJson.response.totalTokens));",
+							"})",
+							"pm.test('validate checkout url in the response', () => {",
+							"    pm.expect(responseJson.response.checkoutUrl).to.include('donationOrgId=66217261');",
+							"})",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"redeemType\": \"DONATION_REDEEM\",\n\t\"targetId\": \"66217261\",\n    \"targetType\": \"ORG\", \n\t\"tokenValue\": \"1000\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards/redeem",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards",
+						"redeem"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Redeem tokens - as Crypto",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate balance after redeem ', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))-500);",
+							"    pm.environment.set('tokenValue', parseInt(responseJson.response.totalTokens));",
+							"})",
+							"pm.test('validate wallet url in the response', () => {",
+							"    pm.expect(responseJson.response.walletTranscationUrl).to.include('https://rinkeby.etherscan.io');",
+							"    pm.expect(responseJson.response.checkoutUrl).to.be.null;",
+							"})",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"redeemType\": \"CRYPTO_REDEEM\",\n    \"targetType\": \"WALLET\",\n    \"tokenValue\": \"500\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards/redeem",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards",
+						"redeem"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Redeem tokens - Personal Cart",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"const responseJson = pm.response.json();",
+							"pm.test('validate balance after redeem ', () => {",
+							"    pm.expect(parseInt(responseJson.response.totalTokens)).to.be.eql(parseInt(pm.environment.get('tokenValue'))-1000);",
+							"    pm.environment.set('tokenValue', parseInt(responseJson.response.totalTokens));",
+							"})",
+							"pm.test('validate checkout url in the response', () => {",
+							"    pm.expect(responseJson.response.checkoutUrl).to.include('app/checkout');",
+							"})",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"redeemType\": \"PERSONAL_CART_REDEEM\",\n\t\"targetId\": \"66217261\",\n    \"targetType\": \"USER\", \n\t\"tokenValue\": \"1000\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards/redeem",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards",
+						"redeem"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Reward Activities",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"})",
+							"pm.test('validate null response', () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.response).not.to.be.null;",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{shelter-QAT}}/g/api/rewards/activities",
+					"host": [
+						"{{shelter-QAT}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"rewards",
+						"activities"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
