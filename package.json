@@ -4,7 +4,9 @@
   "description": "",
   "main": "runner.js",
   "scripts": {
-    "donationOrderTests": "cd src/runner && node runner.js"
+    "donationOrder-STG": "cd src/runner && node donationOrder-STG-runner.js",
+    "donationOrder-QAT": "cd src/runner && node donationOrder-QAT-runner.js",
+    "customerOrder-STG": "cd src/runner && node customerOrder-STG-runner.js"
   },
   "author": "sathish palanisamy",
   "license": "ISC",
