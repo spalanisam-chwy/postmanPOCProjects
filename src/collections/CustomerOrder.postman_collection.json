@@ -148,12 +148,12 @@
 					"basic": [
 						{
 							"key": "password",
-							"value": "cecce1bf-df52-4d4c-9bc9-f89cd022c2ad",
+							"value": "<<TOKEN>>",
 							"type": "string"
 						},
 						{
 							"key": "username",
-							"value": "shelter-service-client",
+							"value": "<<CLIENT>>",
 							"type": "string"
 						}
 					]
@@ -310,12 +310,12 @@
 					"basic": [
 						{
 							"key": "password",
-							"value": "411fe163-3857-4d4e-8da2-73caf3ebf456",
+							"value": "<<TOKEN>>",
 							"type": "string"
 						},
 						{
 							"key": "username",
-							"value": "checkout-service-client",
+							"value": "<<CLIENT>>",
 							"type": "string"
 						}
 					]
@@ -432,12 +432,12 @@
 					"basic": [
 						{
 							"key": "username",
-							"value": "checkout-service-client",
+							"value": "<<CLIENT>>",
 							"type": "string"
 						},
 						{
 							"key": "password",
-							"value": "411fe163-3857-4d4e-8da2-73caf3ebf456",
+							"value": "<<TOKEN>>",
 							"type": "string"
 						}
 					]
