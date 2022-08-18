@@ -1,0 +1,477 @@
+{
+	"info": {
+		"_postman_id": "b84c9abe-4ffb-49f4-a2d6-229eaa286839",
+		"name": "Donation_Order",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17989700"
+	},
+	"item": [
+		{
+			"name": "Create user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var val = Math.floor(100000 + Math.random() * 900000);",
+							"pm.environment.set('email','sathish'+val+'@chewy.com');",
+							"pm.environment.set('name','sathish'+val);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('status code is 201', () => {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"pm.test('validate userid', () => {",
+							"    const responseJson = pm.response.json();",
+							"    pm.expect(responseJson.userId).to.be.greaterThan(0);",
+							"    pm.environment.set('user_id', responseJson.userId);",
+							"    console.log(pm.environment.get('user_id'));",
+							"});",
+							"pm.test(\"Response time is less than 7000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(7000);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"fullName\": \"Sathish Palanisamy\",\n    \"password\": \"password\",\n    \"loginId\": {{email}},\n    \"email\": {{email}}\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/g/api/user/",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"user",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson;",
+							"pm.test('status code is 200', () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test('validate userid', () => {",
+							"    responseJson = pm.response.json();",
+							"    pm.expect(responseJson.userId).to.eql(pm.environment.get('user_id'));",
+							"    console.log(pm.environment.get('user_id'));",
+							"});",
+							"pm.test('Ensure business page url is empty for the user', () => {",
+							"    pm.expect(responseJson.businessPageUrl).to.eq(\"\");",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"loginId\": {{email}},\n    \"password\": \"password\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/g/api/login",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"login"
+					]
+				},
+				"description": "get user id for the given username and password"
+			},
+			"response": []
+		},
+		{
+			"name": "addItemToDonationCart",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"let responseJson = pm.response.json();",
+							"",
+							"pm.test('validate the response', () => {",
+							"    pm.expect(responseJson.referenceCartId).to.be.greaterThan(0);",
+							"    pm.expect(responseJson.donationOrgId).to.eql(parseInt(pm.environment.get('donationOrgId')));",
+							"})",
+							"pm.test(\"Response time is less than 700ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(700);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "account",
+						"value": "{{user_id}}",
+						"type": "text"
+					},
+					{
+						"key": "donationorgid",
+						"value": "{{donationOrgId}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"donationOrgId\": {{donationOrgId}},\n    \"giftCard\": false,\n    \"partNumber\": \"113298\",\n    \"quantity\": 1,\n    \"userId\": \"{{user_id}}\",\n    \"wishListId\": \"{{wishListId}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/g/api/donationcart/items",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"donationcart",
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getDonationCart",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"pm.test(\"Response time is less than 1000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/g/api/donationcart?freeshipping=true&cartType=DONATION",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"g",
+						"api",
+						"donationcart"
+					],
+					"query": [
+						{
+							"key": "freeshipping",
+							"value": "true"
+						},
+						{
+							"key": "cartType",
+							"value": "DONATION"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "init_checkout",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson = pm.response.json();",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Get item total cost\", () => {",
+							"    pm.expect(parseInt(responseJson.order.total)).to.be.greaterThan(0);",
+							"    pm.environment.set('totalCost', responseJson.order.total);",
+							"    console.log(pm.environment.get('totalCost'));",
+							"})",
+							"",
+							"pm.test(\"Response time is less than 1500ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(1500);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "donationorgid",
+						"value": "{{donationOrgId}}",
+						"type": "text"
+					},
+					{
+						"key": "account",
+						"value": "{{user_id}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/proxy/api/checkout/init-checkout",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"proxy",
+						"api",
+						"checkout",
+						"init-checkout"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddCreditCardToUserProfile",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"let responseJson = pm.response.json();",
+							"pm.test('get credit card & wallet id', () => {",
+							"    pm.expect(responseJson.creditCard.id).not.to.eql('');",
+							"    pm.expect(responseJson.creditCard.walletId).not.to.eql('');",
+							"    pm.environment.set('creditcardId', responseJson.creditCard.id);",
+							"    pm.environment.set('walletId', responseJson.creditCard.walletId);",
+							"})",
+							"",
+							"pm.test(\"Response time is less than 2000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"isPCICaptured\": false,\n    \"cardholderName\": \"testing\",\n    \"accountNumber\": \"341134azOfxQBRe1347\",\n    \"expirationMonth\": 3,\n    \"expirationYear\": 2026,\n    \"securityCode\": \"rdcn\",\n    \"billingAddress\": {\n        \"country\": \"US\",\n        \"addressLine1\": \"Northeastern BLVD\",\n        \"addressLine2\": \"4\",\n        \"city\": \"salem\",\n        \"state\": \"NH\",\n        \"postcode\": \"03079\",\n        \"phone\": \"4244353455\"\n    },\n    \"encryptionIntegrityCheck\": \"6c030d4d71c30d63\",\n    \"recaptcha\": {\n        \"challengeResponse\": \"\",\n        \"entryPoint\": \"checkout\",\n        \"forceChallenge\": false\n    },\n    \"encryptedWithCvv\": true\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/proxy/api/sfs/v1/paymentMethods/creditCard",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"proxy",
+						"api",
+						"sfs",
+						"v1",
+						"paymentMethods",
+						"creditCard"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "paymentMethods",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let responseJson = pm.response.json();",
+							"",
+							"pm.test('get walletId from response', () => {",
+							"    pm.expect(responseJson.paymentMethods[0].creditCard.walletId).not.to.eq('');",
+							"    pm.expect(responseJson.paymentMethods[0].creditCard.walletId).to.eq(pm.environment.get('walletId'));console.log(pm.environment.get('walletId'));",
+							"})",
+							"",
+							"pm.test('get creditcardId from response', () => {",
+							"    pm.expect(responseJson.paymentMethods[0].creditCard.id).not.to.eq('');",
+							"    pm.expect(responseJson.paymentMethods[0].creditCard.id).to.eq(pm.environment.get('creditcardId'));console.log(pm.environment.get('creditcardId'));",
+							"})",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 800ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(800);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/proxy/api/sfs/v1/paymentMethods",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"proxy",
+						"api",
+						"sfs",
+						"v1",
+						"paymentMethods"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "checkoutProcess",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"let responseJson = pm.response.json();",
+							"pm.test('validate order confirmation number', () => {",
+							"    pm.expect(parseInt(responseJson.orderConfirmation)).to.be.greaterThan(0);",
+							"    pm.expect(responseJson.orderConfirmation).not.to.eql('');",
+							"})",
+							"",
+							"pm.test(\"Response time is less than 4000ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(4000);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "donationorgid",
+						"value": "{{donationOrgId}}",
+						"type": "text"
+					},
+					{
+						"key": "account",
+						"value": "{{user_id}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"timezone\": \"\",\n    \"kountSessionId\": \"3bceaaf257c044bd8e850a8593084e3a\",\n    \"challengeResponse\": \"\",\n    \"paymentDetail\": {\n        \"payPalDetail\": {\n            \"amount\": \"{{totalCost}}\",\n            \"walletId\": \"{{walletId}}\",\n            \"paymentMethodId\": \"{{creditcardId}}\",\n            \"deviceData\": {\n                \"correlationId\": \"\"\n            },\n            \"verification\": null\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/proxy/api/checkout/process",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"proxy",
+						"api",
+						"checkout",
+						"process"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
